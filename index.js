@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 const port = process.env.PORT || 5000;
 
@@ -18,10 +18,23 @@ async function run() {
     try {
         const addTasksCollection = client.db('taskWorld').collection('addTask');
 
+        app.get('/addTask', async (req, res) => {
+            const query = {};
+            const addTask = await addTasksCollection.find(query).toArray();
+            res.send(addTask)
+        })
+
         app.post('/addTask', async (req, res) => {
             const AddTask = req.body;
             const result = await addTasksCollection.insertOne(AddTask);
             res.send(result)
+        })
+
+        app.delete('/addTask/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const result = await addTasksCollection.deleteOne(filter)
+            res.send(result);
         })
 
     }
